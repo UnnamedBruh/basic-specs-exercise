@@ -13,17 +13,21 @@
 			<li><a href="#definitions">Function Definitions</a></li>
 			<li><a href="#global-rules">Global Edge Cases</a></li>
 			<li><a href="#notes">Notes For Each Pseudocode Snippet</a></li>
+			<li><a href="#exceptions">Important Exceptions</a></li>
+			<li><a href="#implementations">Official Implementations</a></li>
 		</ol>
 		<hr>
 		<a id="vocab">1. Vocabulary Phrases</a>
 		<br>
 		<a>The following vocabulary applies in this document.</a>
 		<ol type="1" start="1">
-			<li><a>"Must" is an absolute <b>requirement</b> of a rule, definition or specification.</a></li>
+			<li><a>"Thing" refers to a rule, definition or specification</a></li>
+			<li><a>"Must" is an absolute <b>requirement</b> of a thing.</a></li>
 			<li><a>"Must not" is an absolute <b>prohibition</b>.</a></li>
-			<li><a>"Should" is a <b>recommendation</b> to implement a rule, definition or specification, although not doing so can be desirable in rare circumstances.</a></li>
-			<li><a>"Should not" is a <b>recommendation</b> to not implement a rule, definition or specification, although doing so can be desirable in rare circumstances.</a></li>
-			<li><a>"Optional" or "may" means a rule, definition or specification is discretionary. It is up to the implementation to decide to implement it or not.</a></li>
+			<li><a>"Should" is a <b>recommendation</b> to implement a thing, although not doing so can be desirable in rare circumstances.</a></li>
+			<li><a>"Should not" is a <b>recommendation</b> to not implement a thing, although doing so can be desirable in rare circumstances.</a></li>
+			<li><a>"Optional" or "may" means a thing is discretionary. It is up to the implementation to decide to implement it or not.</a></li>
+			<li><a>"Not restricted" is an <b>option</b> to implement a thing. It may be necessary for specific circumstances.</a></li>
 		</ol>
 		<hr>
 		<a id="definitions">2. Mathematical Functions</a>
@@ -122,5 +126,24 @@ return maximumValue - minimumValue</code></pre>
 		<a id="notes">4. Notes For Each Pseudocode Snippet</a>
 		<br>
 		<a>On an empty list, whether the functions must return 0 or an empty list, or throw an error is intentionally ambiguous. Therefore, it is up to the implementation to decide between either functionality for that case.</a>
+		<br>
+		<a>Importantly, <b>how</b> the functions are implemented is not a concern. What mainly matters is their functional correctness. For an example, an implementation of the <code>mean</code> function can use SIMD optimizations while retaining technical correctness.</a>
+		<hr>
+		<a id="exceptions">5. Important Exceptions</a>
+		<br>
+		<a>Although this document assumes specific conventions that may or may not be possible:</a>
+		<ul>
+			<li>If the implementation's environment uses a system that is not zero-indexed, the implementation is not restricted from adapting to this system. ex. MATLAB, R, Julia, Fortran, COBOL, and Lua, many of which are programming languages, use one-indexed systems.</li>
+		</ul>
+		<hr>
+		<a id="implementations">6. Official Implementations</a>
+		<br>
+		<a>There are planned to be official implementations of this specification in a few programming languages. Language names whose specifications are open have a link to that specification:</a>
+		<ul>
+			<li><a href="https://262.ecma-international.org/17.0/index.html">ECMAScript</a>, <a class="disabledlink" href="basic_math_functions.js" onclick="event.preventDefault(); return false;">implementation</a></li>
+			<li><a href="https://www.lua.org/manual/5.4/manual.html">Lua</a>, <a class="disabledlink" href="basic_math_functions.lua" onclick="event.preventDefault(); return false;">implementation</a></li>
+			<li>C, <a class="disabledlink" href="basic_math_functions.c" onclick="event.preventDefault(); return false;">implementation</a></li>
+			<li>C++, <a class="disabledlink" href="basic_math_functions.cpp" onclick="event.preventDefault(); return false;">implementation</a></li>
+		</ul>
 	</body>
 </html>
