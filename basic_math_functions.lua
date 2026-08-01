@@ -8,7 +8,7 @@
 
 -- Please read the MIT License for more details: https://opensource.org/license/mit
 
--- ----- DISCLAIMER ----- //
+----- DISCLAIMER -----
 
 -- This file is the official Lua reference implementation of the Basic Mathematical Functions specification. As of August 1, 2026, it targets the current Lua language specification and prioritizes conformance over portability to older implementations of Lua.
 
