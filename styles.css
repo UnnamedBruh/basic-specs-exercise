@@ -4,11 +4,15 @@
 	font-weight: bold;
 }
 
-.a[href] {
+a {
+	display: block;
+}
+
+a[href] {
 	color: blue;
 	text-decoration: none;
 }
 
-.a[href]:hover {
+a[href]:hover {
 	text-decoration: underline;
 }
