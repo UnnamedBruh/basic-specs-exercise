@@ -4,13 +4,6 @@
 	font-weight: bold;
 }
 
-.disabledlink {
-	pointer-events: none;
-	cursor: not-allowed;
-	opacity: 0.5;
-	color: red;
-}
-
 a {
 	display: block;
 }
@@ -22,4 +15,10 @@ a[href] {
 
 a[href]:hover {
 	text-decoration: underline;
+}
+
+.disabledlink {
+	cursor: not-allowed;
+	opacity: 0.5;
+	color: red;
 }
