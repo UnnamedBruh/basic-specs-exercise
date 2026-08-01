@@ -45,16 +45,19 @@ return accumulator</code></pre>
 				<code>f</code>(<code>x</code>) = {
 				<br>if <code>i</code> is even: (<code>x</code><sub><code>i</code> / 2 - 1</sub> + <code>x</code><sub><code>i</code> / 2</sub>) / 2
 				<br>if <code>i</code> is odd: <code>x</code><sub>(<code>i</code> - 1) / 2</sub><br>}
-				<a>Assuming that the list is sorted from least to greatest. In the definition, <code>i</code> is the number of items in the list.</a>
+				<a>The definition assumes that the list is sorted from least to greatest. <code>i</code> is the number of items in the list.</a>
 				<a>The equivalent pseudo-code is:</a>
 				<pre><code>median(x):
 let count be the number of items in x
 if count is 0, return 0 or raise an error
 if count is even, return (x[count / 2 - 1] + x[count / 2]) / 2
-if count is odd, return x[(i - 1) / 2]</code></pre>
+if count is odd, return x[(count - 1) / 2]</code></pre>
 				<a>Notes:</a>
 				<ul>
-					<li>The requirement of whether <code>x</code> is sorted is up to the implementation.</li>
+					<li>The requirement of whether <code>x</code> is sorted is up to the implementation. However, the choice carries heavy implications, because:<ul>
+						<li>If <code>x</code> has to be sorted before calling the function, the implementation may produce a statistically "incorrect" output for an unsorted list. For an example, <code>median([9, 1, 4])</code> returns <code>1</code> (incorrect) instead of <code>4</code> (correct).</li>
+						<li>If <code>x</code> is sorted in the function, there is a negligible performance overhead for when it attempts to sort an already sorted list. However, it produces the correct result regardless of whether <code>x</code> is or is not sorted.</li>
+					</ul></li>
 					<li>The mathematical and pseudocode definitions use a zero-indexed system. This is specified at the top of <a href="#definitions">Function Definitions</a>, but this exists for clarity.</li>
 				</ul>
 			</li>
@@ -73,6 +76,10 @@ let commonValues be an empty list of values
 for each entry of counts:
 	if the value of entry is equal to highestCount, add the key of entry into commonValues
 return commonValues</code></pre>
+				<a>Notes:</a>
+				<ul>
+					<li>The implementation must return a list of items that occur the most. The pseudocode follows this rule.</li>
+				</ul>
 			</li>
 			<li>
 				<code>range</code>: This function must find the distance between the largest and smallest numbers in a list. It is defined as:<br>
