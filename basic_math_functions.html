@@ -135,6 +135,7 @@ return maximumValue - minimumValue</code></pre>
 		<a>Although this document assumes specific conventions that may or may not be possible:</a>
 		<ul>
 			<li>If the implementation's environment uses a system that is not zero-indexed, the implementation is not restricted from adapting to this system. ex. MATLAB, R, Julia, Fortran, COBOL, and Lua, many of which are programming languages, use one-indexed systems.</li>
+			<li>if the implementation's environment does not support list-like or dictionary-like types, the implementation is not restricted from using alternative structures to achieve equivalent behavior. For an example, the C language conventionally uses pointers to blocks of memory, and the number of bytes each block takes up.</li>
 		</ul>
 		<hr>
 		<a id="implementations">6. Official Implementations</a>
