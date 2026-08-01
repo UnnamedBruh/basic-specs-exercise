@@ -120,7 +120,7 @@ function range(list) {
 	validate(list);
 	throwIfListIsEmpty(list);
 
-	let minimumValue = maximumValue = list[0];
+	let minimumValue = list[0], maximumValue = list[0];
 
 	for (const item of list) {
 		if (item < minimumValue) minimumValue = item;
