@@ -89,7 +89,7 @@ function median(list) {
 	if (sortedList.length % 2 === 0) // If the list's length is even
 		return (sortedList[sortedList.length / 2 - 1] + sortedList[sortedList.length / 2]) / 2;
 	else // If the list's length is odd
-		return sortedList[sortedList.length / 2 - 1];
+		return sortedList[(sortedList.length - 1) / 2];
 }
 
 function mode(list) {
@@ -99,7 +99,7 @@ function mode(list) {
 	let counts = new Map();
 	let highestCount = 0;
 
-	for (const item in list) {
+	for (const item of list) {
 		let value = counts.get(item);
 		if (!value) counts.set(item, (value = 1)); else counts.set(item, ++value);
 		if (highestCount < value) highestCount = value;
