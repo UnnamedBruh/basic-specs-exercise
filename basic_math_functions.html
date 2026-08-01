@@ -14,6 +14,7 @@
 			<li><a href="#global-rules">Global Edge Cases</a></li>
 			<li><a href="#notes">Notes For Each Pseudocode Snippet</a></li>
 		</ol>
+		<hr>
 		<a id="vocab">1. Vocabulary Phrases</a>
 		<br>
 		<a>The following vocabulary applies in this document.</a>
@@ -25,6 +26,7 @@
 			<li><a>"Optional" or "may" means a rule, definition or specification is discretionary. It is up to the implementation to decide to implement it or not.</a></li>
 		</ol>
 		<a>Each variation of the quoted vocabulary applies. For an example, "optional" and "optionally" have the same definition.</a>
+		<hr>
 		<a id="definitions">2. Mathematical Functions</a>
 		<br>
 		<a>Below are four mathematical analysis functions, and their behavior. Each mathematical and pseudo definition assumes that lists are zero-indexed, meaning that <code>list[0]</code> accesses the first item of a list.</a>
@@ -55,12 +57,12 @@ if count is even, return (x[count / 2 - 1] + x[count / 2]) / 2
 if count is odd, return x[(count - 1) / 2]</code></pre>
 				<a>Notes:</a>
 				<ul>
-					<li>Both the mathematical and pseudocode definitions assume that the list is sorted from least to greatest.</li>
+					<li>Both the mathematical and pseudocode definitions assume that the list is sorted by value.</li>
 					<li>The requirement of whether <code>x</code> must be sorted is up to the implementation. However, the choice carries heavy implications, because:<ul>
 						<li>If <code>x</code> has to be sorted before calling the function, the implementation may produce a statistically "incorrect" output for an unsorted list. For an example, <code>median([9, 1, 4])</code> returns <code>1</code> (incorrect) instead of <code>4</code> (correct).</li>
 						<li>If <code>x</code> is sorted in the function, there is a negligible performance overhead for when it attempts to sort an already sorted list. However, it produces the correct result regardless of whether <code>x</code> is or is not sorted.</li>
 					</ul></li>
-					<li>The mathematical and pseudocode definitions use a zero-indexed system. This is specified at the top of <a href="#definitions">Function Definitions</a>, but this exists for clarity.</li>
+					<li>The mathematical and pseudocode definitions use a zero-indexed system. This is specified at the top of <a href="#definitions" style="display: inline">Function Definitions</a>, but this exists for clarity.</li>
 				</ul>
 			</li>
 			<li>
@@ -99,14 +101,15 @@ return maximumValue - minimumValue</code></pre>
 				<a>Or more explicitly:</a>
 				<pre><code>range(x):
 if x is empty, return 0 or raise an error
-let minimumValue be the first item of x
-let maximumValue be the first item of x
+let minimumValue be x[0]
+let maximumValue be x[0]
 for each item in x:
 	if item is less than minimumValue, set minimumValue to item
 	if item is greater than maximumValue, set maximumValue to item
 return maximumValue - minimumValue</code></pre>
 			</li>
 		</ul>
+		<hr>
 		<a id="global-rules">3. Global Edge Cases</a>
 		<br>
 		<a>The functions above assume that <code>x</code> is a list of items, and that each item is a numerical value. This chapter specifies functionality that may be included in each defined function. The functionality is as follows:</a>
@@ -116,6 +119,7 @@ return maximumValue - minimumValue</code></pre>
 			<li><a>If any item of <code>x</code> is a numerical type, but does not represent any specific value (ex. when an item is <code>NaN</code>), raise an error.</a></li>
 		</ol>
 		<a>The above functionality prevents unexpected behavior. For an example, if <code>mean</code> was passed a string value, it can raise an error instead of returning an unexpected value.</a>
+		<hr>
 		<a id="notes">4. Notes For Each Pseudocode Snippet</a>
 		<br>
 		<a>On an empty list, whether the functions must return 0 or an empty list, or throw an error is intentionally ambiguous. Therefore, it is up to the implementation to decide between either functionality for that case.</a>
