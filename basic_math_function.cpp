@@ -34,12 +34,15 @@ Importantly, how the functions are implemented is not a concern. What mainly mat
 
 // C-style pointers, and many array-like C++ containers use zero-indexed systems. They are compatible with the lists specified in the reference document.
 
+// Although integers would truncate or overflow, this is technically allowed by the specification. It only specifies that the types must be "numeric."
+
 #include <unordered_map>
 #include <vector>
 #include <cmath>
 #include <type_traits>
 #include <stdexcept>
 #include <utility>
+#include <algorithm>
 
 template <typename T>
 void validate(const std::vector<T>& list) {
@@ -76,7 +79,7 @@ T median(std::vector<T> list) { // Do not pass by reference to keep the original
 	std::sort(list.begin(), list.end());
 	// Note: " ... there is a negligible performance overhead for when it attempts to sort an already sorted list. However, it produces the correct result regardless of whether x is or is not sorted."
 
-	if (list.size() % 2 === 0) // If the list's length is even
+	if (list.size() % 2 == 0) // If the list's length is even
 		return (list[list.size() / 2 - 1] + list[list.size() / 2]) / T(2);
 	else // If the list's length is odd
 		return list[(list.size() - 1) / 2];
@@ -97,7 +100,7 @@ std::vector<T> mode(const std::vector<T>& list) {
 		if (highestCount < count) highestCount = count;
 	}
 
-	if (highestCount === 1) return {};
+	if (highestCount == 1) return {};
 
 	std::vector<T> commonValues;
 
