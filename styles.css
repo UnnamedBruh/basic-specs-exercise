@@ -1,0 +1,14 @@
+.header {
+	text-align: center;
+	font-size: 30px;
+	font-weight: bold;
+}
+
+.a[href] {
+	color: blue;
+	text-decoration: none;
+}
+
+.a[href]:hover {
+	text-decoration: underline;
+}
