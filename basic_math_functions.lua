@@ -1,5 +1,5 @@
 -- This implementation of the following specification: https://unnamedbruh.github.io/basic-specs-exercise/basic_math_functions.html
--- Is written in the ECMAScript programming language: https://www.lua.org/manual/5.4/manual.html
+-- Is written in the Lua programming language: https://www.lua.org/manual/5.4/manual.html
 
 -- Copyright (C) UnnamedBruh 2026
 
