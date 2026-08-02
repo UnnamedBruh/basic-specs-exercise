@@ -38,7 +38,7 @@ Importantly, how the functions are implemented is not a concern. What mainly mat
 
 #include <stdlib.h>
 #include <math.h>
-#include <string.h> // Note: We're including this to allow memory allocations and freeing.
+#include <string.h>
 
 const int MATHFUNCTIONS_ERROR_FAILED = 1;
 const int MATHFUNCTIONS_ERROR_SUCCESS = 0;
@@ -53,8 +53,8 @@ int validate(const desiredType* ptr, const size_t len) {
 	return MATHFUNCTIONS_ERROR_SUCCESS;
 }
 
-int isListEmpty(const size_t len) {
-	return len == 0 ? MATHFUNCTIONS_ERROR_FAILED : MATHFUNCTIONS_ERROR_SUCCESS;
+bool isListEmpty(const size_t len) {
+	return len == 0;
 }
 
 int mean(const desiredType* list, const size_t len, desiredType* result) {
@@ -85,6 +85,8 @@ int median(const desiredType* list, const size_t len, desiredType* result) {
 	if (isListEmpty(len)) return MATHFUNCTIONS_ERROR_FAILED;
 
 	desiredType *allocatedMemory = (desiredType *)malloc(len * sizeof(desiredType));
+	if (allocatedMemory == NULL) return MATHFUNCTIONS_ERROR_FAILED;
+
 	memcpy(allocatedMemory, list, len * sizeof(desiredType));
 
 	qsort(allocatedMemory, len, sizeof(desiredType), m__compare_desiredType);
@@ -125,14 +127,17 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 	// calloc automatically initializes the memory to 0, unlike malloc
 	desiredType *countsKeys = (desiredType *)calloc(hashLength, sizeof(desiredType));
 	size_t *countsValues = (size_t *)calloc(hashLength, sizeof(size_t));
+
+	if (countsKeys == NULL || countsValues || NULL) return MATHFUNCTIONS_ERROR_FAILED;
+
 	size_t highestCount = 0;
 	size_t nextAvailableIndexForHash = 0;
 
 	for (size_t i = 0; i < len; i++) {
-		size_t index = m__hash_find(countsKeys, hashLength, sizeof(size_t), &list[i], m__cmp_desiredType);
+		size_t index = m__hash_find(countsKeys, hashLength, sizeof(desiredType), &list[i], m__cmp_desiredType);
 		size_t count = 0;
 		if (index == hashLength) {
-			countsKeys[nextAvailableIndexForHash] = *((desiredType *)(list + i));
+			countsKeys[nextAvailableIndexForHash] = list[i];
 			count = countsValues[nextAvailableIndexForHash] = 1;
 			nextAvailableIndexForHash++;
 		} else {
@@ -144,10 +149,12 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 	if (highestCount == 1) {
 		*result = NULL;
 		*lenOfResult = 0;
-		return MATHFUNCTIONS_ERROR_SUCCESS;
+		goto FREE_HASH_SUCCESS;
 	}
 
 	desiredType *listOfItems = (desiredType *)calloc(len, sizeof(desiredType));
+	if (listOfItems || NULL) return MATHFUNCTIONS_ERROR_FAILED;
+
 	size_t nextAvailableIndexForList = 0;
 
 	for (size_t i = 0; i < len; i++) {
@@ -160,6 +167,10 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 	*result = listOfItems;
 	*lenOfResult = nextAvailableIndexForList;
 
+	FREE_HASH_SUCCESS:
+	free(countsKeys);
+	free(countsValues);
+
 	return MATHFUNCTIONS_ERROR_SUCCESS;
 }
 
@@ -170,7 +181,7 @@ int range(const desiredType* list, const size_t len, desiredType* result) {
 
 	desiredType minimumValue = list[0], maximumValue = list[0];
 
-	for (size_t i = 0; i < len; i++) {
+	for (size_t i = 1; i < len; i++) {
 		if (list[i] < minimumValue) minimumValue = list[i];
 		if (list[i] > maximumValue) maximumValue = list[i];
 	}
