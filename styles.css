@@ -22,3 +22,8 @@ a[href]:hover {
 	opacity: 0.5;
 	color: red;
 }
+
+.pre {
+	word-wrap: break-word;
+	white-space: pre-wrap;
+}
