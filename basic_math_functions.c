@@ -126,9 +126,12 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 
 	// calloc automatically initializes the memory to 0, unlike malloc
 	desiredType *countsKeys = (desiredType *)calloc(hashLength, sizeof(desiredType));
+	if (countsKeys == NULL) return MATHFUNCTIONS_ERROR_FAILED;
 	size_t *countsValues = (size_t *)calloc(hashLength, sizeof(size_t));
-
-	if (countsKeys == NULL || countsValues || NULL) return MATHFUNCTIONS_ERROR_FAILED;
+	if (countsValues == NULL) {
+		free(countsKeys);
+		return MATHFUNCTIONS_ERROR_FAILED;
+	}
 
 	size_t highestCount = 0;
 	size_t nextAvailableIndexForHash = 0;
@@ -153,7 +156,7 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 	}
 
 	desiredType *listOfItems = (desiredType *)calloc(len, sizeof(desiredType));
-	if (listOfItems || NULL) return MATHFUNCTIONS_ERROR_FAILED;
+	if (listOfItems == NULL) return MATHFUNCTIONS_ERROR_FAILED;
 
 	size_t nextAvailableIndexForList = 0;
 
