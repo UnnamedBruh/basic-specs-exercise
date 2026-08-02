@@ -137,9 +137,9 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 	size_t nextAvailableIndexForHash = 0;
 
 	for (size_t i = 0; i < len; i++) {
-		size_t index = m__hash_find(countsKeys, hashLength, sizeof(desiredType), &list[i], m__cmp_desiredType);
+		size_t index = m__hash_find(countsKeys, nextAvailableIndexForHash + 1, sizeof(desiredType), &list[i], m__cmp_desiredType);
 		size_t count = 0;
-		if (index == hashLength) {
+		if (index == nextAvailableIndexForHash + 1) {
 			countsKeys[nextAvailableIndexForHash] = list[i];
 			count = countsValues[nextAvailableIndexForHash] = 1;
 			nextAvailableIndexForHash++;
@@ -156,7 +156,7 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 	}
 
 	desiredType *listOfItems = (desiredType *)calloc(len, sizeof(desiredType));
-	if (listOfItems == NULL) return MATHFUNCTIONS_ERROR_FAILED;
+	if (listOfItems == NULL) goto FREE_HASH_FAIL;
 
 	size_t nextAvailableIndexForList = 0;
 
@@ -169,6 +169,12 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 
 	*result = listOfItems;
 	*lenOfResult = nextAvailableIndexForList;
+
+	FREE_HASH_FAIL:
+	free(countsKeys);
+	free(countsValues);
+
+	return MATHFUNCTIONS_ERROR_FAIL;
 
 	FREE_HASH_SUCCESS:
 	free(countsKeys);
