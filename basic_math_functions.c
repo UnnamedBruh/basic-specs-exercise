@@ -39,6 +39,7 @@ Importantly, how the functions are implemented is not a concern. What mainly mat
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <stdbool.h>
 
 const int MATHFUNCTIONS_ERROR_FAILED = 1;
 const int MATHFUNCTIONS_ERROR_SUCCESS = 0;
