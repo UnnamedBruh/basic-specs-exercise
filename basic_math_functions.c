@@ -1,5 +1,5 @@
 // This implementation of the following specification: https://unnamedbruh.github.io/basic-specs-exercise/basic_math_functions.html
-// Is written in the C++ programming language. Specifically, C++26.
+// Is written in the C programming language. Specifically, C23.
 
 // Copyright (C) UnnamedBruh 2026
 
@@ -10,7 +10,7 @@
 
 // ----- DISCLAIMER ----- //
 
-// This file is the official C++ reference implementation of the Basic Mathematical Functions specification. As of August 1, 2026, it targets the current C++ language specification and prioritizes conformance over portability to older C++ runtime libraries.
+// This file is the official C reference implementation of the Basic Mathematical Functions specification. As of August 1, 2026, it targets the current C language specification and prioritizes conformance over portability to older versions of C.
 
 // ----- UP TO THE IMPLEMENTATION ----- //
 
@@ -32,96 +32,150 @@ Importantly, how the functions are implemented is not a concern. What mainly mat
 
 // ----- IMPLEMENTATION DETAILS ----- //
 
-// C-style pointers, and many array-like C++ containers use zero-indexed systems. They are compatible with the lists specified in the reference document.
+// C pointers use zero-indexed systems. They are compatible with the lists specified in the reference document.
+// However, C lacks maps that the specification implies are supported, so we have to define our own hash-map system.
+// C also lacks template systems, so we must either choose one type, or define near-identical functions for different types.
 
-// Although integers would truncate or overflow, this is technically allowed by the specification. It only specifies that the types must be "numeric."
+#include <stdlib.h>
+#include <math.h>
+#include <string.h> // Note: We're including this to allow memory allocations and freeing.
 
-#include <unordered_map>
-#include <vector>
-#include <cmath>
-#include <type_traits>
-#include <stdexcept>
-#include <utility>
-#include <algorithm>
+const int MATHFUNCTIONS_ERROR_FAILED = 1;
+const int MATHFUNCTIONS_ERROR_SUCCESS = 0;
 
-template <typename T>
-void validate(const std::vector<T>& list) {
-	if constexpr (std::is_floating_point_v<T>) {
-		for (const T& item : list) {
-			// Note: std::isfinite checks if a floating point type is finite, and represents a specific number.
-			if (!std::isfinite(item)) throw std::invalid_argument("The list contains numerical types that do not represent a specific value");
-		}
+typedef double desiredType;
+
+int validate(const desiredType* ptr, const size_t len) {
+	for (size_t i = 0; i < len; i++) {
+		// Note: isfinite checks if a floating point type is finite, and represents a specific number.
+		if (!isfinite(ptr[i])) return MATHFUNCTIONS_ERROR_FAILED;
 	}
-
-	static_assert(std::is_arithmetic_v<T>, "The types contained by the list must be numerical");
+	return MATHFUNCTIONS_ERROR_SUCCESS;
 }
 
-template <typename T>
-void throwIfListIsEmpty(const std::vector<T>& list) {
-	if (list.empty()) throw std::invalid_argument("The list is empty; it contains no items");
+int isListEmpty(const size_t len) {
+	return len == 0 ? MATHFUNCTIONS_ERROR_FAILED : MATHFUNCTIONS_ERROR_SUCCESS;
 }
 
-template <typename T>
-T mean(const std::vector<T>& list) {
-	validate(list);
-	throwIfListIsEmpty(list);
+int mean(const desiredType* list, const size_t len, desiredType* result) {
+	if (list == NULL || result == NULL) return MATHFUNCTIONS_ERROR_FAILED;
+	if (validate(list, len)) return MATHFUNCTIONS_ERROR_FAILED;
+	if (isListEmpty(len)) return MATHFUNCTIONS_ERROR_FAILED;
 
-	T accumulator = T(0);
-	for (const T& item : list) accumulator += item;
-	return accumulator / T(list.size());
+	desiredType accumulator = 0;
+	for (size_t i = 0; i < len; i++) {
+		accumulator += list[i];
+	}
+	*result = accumulator / (desiredType)len;
+	return MATHFUNCTIONS_ERROR_SUCCESS;
 }
 
-template <typename T>
-T median(std::vector<T> list) { // Do not pass by reference to keep the original list unmodified
-	validate(list);
-	throwIfListIsEmpty(list);
+int m__compare_desiredType(const void *a, const void *b) {
+	desiredType arg1 = *(const desiredType *)a;
+	desiredType arg2 = *(const desiredType *)b;
 
-	std::sort(list.begin(), list.end());
+	if (arg1 < arg2) return -1;
+	if (arg1 > arg2) return 1;
+	return 0;
+}
+
+int median(const desiredType* list, const size_t len, desiredType* result) {
+	if (list == NULL || result == NULL) return MATHFUNCTIONS_ERROR_FAILED;
+	if (validate(list, len)) return MATHFUNCTIONS_ERROR_FAILED;
+	if (isListEmpty(len)) return MATHFUNCTIONS_ERROR_FAILED;
+
+	desiredType *allocatedMemory = (desiredType *)malloc(len * sizeof(desiredType));
+	memcpy(allocatedMemory, list, len * sizeof(desiredType));
+
+	qsort(allocatedMemory, len, sizeof(desiredType), m__compare_desiredType);
 	// Note: " ... there is a negligible performance overhead for when it attempts to sort an already sorted list. However, it produces the correct result regardless of whether x is or is not sorted."
 
-	if (list.size() % 2 == 0) // If the list's length is even
-		return (list[list.size() / 2 - 1] + list[list.size() / 2]) / T(2);
+	if (len % 2 == 0) // If the list's length is even
+		*result = (allocatedMemory[len / 2 - 1] + allocatedMemory[len / 2]) / (desiredType)2;
 	else // If the list's length is odd
-		return list[(list.size() - 1) / 2];
+		*result = allocatedMemory[(len - 1) / 2];
+
+	return MATHFUNCTIONS_ERROR_SUCCESS;
 }
 
-template <typename T>
-std::vector<T> mode(const std::vector<T>& list) {
-	validate(list);
-	throwIfListIsEmpty(list);
+typedef int (*m__compare_function)(const void *a, const void *b);
 
-	std::unordered_map<T, size_t> counts;
+int m__cmp_desiredType(const void *a, const void *b) {
+	desiredType da = *(const desiredType *)a;
+	desiredType db = *(const desiredType *)b;
+	return da == db ? 0 : 1; // handles -0.0 == 0.0 and NaN != NaN correctly
+}
+
+size_t m__hash_find(void *hash_table, const size_t len, const size_t elementSize, const void *candidate, m__compare_function cmp) {
+	const unsigned char *base = (const unsigned char *)hash_table;
+	for (size_t i = 0; i < len; i++) {
+		const void *element = base + i * elementSize;
+		if (cmp(element, candidate) == 0) return i;
+	}
+	return len;
+}
+
+int mode(const desiredType* list, const size_t len, desiredType** result, size_t* lenOfResult) {
+	if (list == NULL || result == NULL) return MATHFUNCTIONS_ERROR_FAILED;
+	if (validate(list, len)) return MATHFUNCTIONS_ERROR_FAILED;
+	if (isListEmpty(len)) return MATHFUNCTIONS_ERROR_FAILED;
+
+	const size_t hashLength = len;
+
+	// calloc automatically initializes the memory to 0, unlike malloc
+	desiredType *countsKeys = (desiredType *)calloc(hashLength, sizeof(desiredType));
+	size_t *countsValues = (size_t *)calloc(hashLength, sizeof(size_t));
 	size_t highestCount = 0;
+	size_t nextAvailableIndexForHash = 0;
 
-	for (const T& item : list) {
-		auto foundPair = counts.find(item);
+	for (size_t i = 0; i < len; i++) {
+		size_t index = m__hash_find(countsKeys, hashLength, sizeof(size_t), &list[i], m__cmp_desiredType);
 		size_t count = 0;
-		if (foundPair == counts.end()) count = counts[item] = 1; else count = ++foundPair->second;
+		if (index == hashLength) {
+			countsKeys[nextAvailableIndexForHash] = *((desiredType *)(list + i));
+			count = countsValues[nextAvailableIndexForHash] = 1;
+			nextAvailableIndexForHash++;
+		} else {
+			count = ++countsValues[index];
+		}
 		if (highestCount < count) highestCount = count;
 	}
 
-	if (highestCount == 1) return {};
-
-	std::vector<T> commonValues;
-
-	for (const auto& [key, value] : counts) {
-		if (value == highestCount) commonValues.push_back(key);
+	if (highestCount == 1) {
+		*result = NULL;
+		*lenOfResult = 0;
+		return MATHFUNCTIONS_ERROR_SUCCESS;
 	}
 
-	return commonValues;
+	desiredType *listOfItems = (desiredType *)calloc(len, sizeof(desiredType));
+	size_t nextAvailableIndexForList = 0;
+
+	for (size_t i = 0; i < len; i++) {
+		if (countsValues[i] == highestCount) {
+			listOfItems[nextAvailableIndexForList] = countsKeys[i];
+			nextAvailableIndexForList++;
+		}
+	}
+
+	*result = listOfItems;
+	*lenOfResult = nextAvailableIndexForList;
+
+	return MATHFUNCTIONS_ERROR_SUCCESS;
 }
 
-template <typename T>
-T range(const std::vector<T>& list) {
-	validate(list);
-	throwIfListIsEmpty(list);
+int range(const desiredType* list, const size_t len, desiredType* result) {
+	if (list == NULL || result == NULL) return MATHFUNCTIONS_ERROR_FAILED;
+	if (validate(list, len)) return MATHFUNCTIONS_ERROR_FAILED;
+	if (isListEmpty(len)) return MATHFUNCTIONS_ERROR_FAILED;
 
-	T minimumValue = list[0], maximumValue = list[0];
+	desiredType minimumValue = list[0], maximumValue = list[0];
 
-	for (const T& item : list) {
-		if (item < minimumValue) minimumValue = item;
-		if (item > maximumValue) maximumValue = item;
+	for (size_t i = 0; i < len; i++) {
+		if (list[i] < minimumValue) minimumValue = list[i];
+		if (list[i] > maximumValue) maximumValue = list[i];
 	}
 
-	return maximumValue - minimumValue;
+	*result = maximumValue - minimumValue;
+
+	return MATHFUNCTIONS_ERROR_SUCCESS;
 }
