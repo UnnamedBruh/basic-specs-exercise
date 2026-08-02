@@ -109,7 +109,7 @@ int m__cmp_desiredType(const void *a, const void *b) {
 	return da == db ? 0 : 1; // handles -0.0 == 0.0 and NaN != NaN correctly
 }
 
-size_t m__hash_find(void *hash_table, const size_t len, const size_t elementSize, const void *candidate, m__compare_function cmp) {
+size_t m__map_find(void *hash_table, const size_t len, const size_t elementSize, const void *candidate, m__compare_function cmp) {
 	const unsigned char *base = (const unsigned char *)hash_table;
 	for (size_t i = 0; i < len; i++) {
 		const void *element = base + i * elementSize;
@@ -123,27 +123,27 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 	if (validate(list, len)) return MATHFUNCTIONS_ERROR_FAILED;
 	if (isListEmpty(len)) return MATHFUNCTIONS_ERROR_FAILED;
 
-	const size_t hashLength = len;
+	const size_t mapLength = len;
 
 	// calloc automatically initializes the memory to 0, unlike malloc
-	desiredType *countsKeys = (desiredType *)calloc(hashLength, sizeof(desiredType));
+	desiredType *countsKeys = (desiredType *)calloc(mapLength, sizeof(desiredType));
 	if (countsKeys == NULL) return MATHFUNCTIONS_ERROR_FAILED;
-	size_t *countsValues = (size_t *)calloc(hashLength, sizeof(size_t));
+	size_t *countsValues = (size_t *)calloc(mapLength, sizeof(size_t));
 	if (countsValues == NULL) {
 		free(countsKeys);
 		return MATHFUNCTIONS_ERROR_FAILED;
 	}
 
 	size_t highestCount = 0;
-	size_t nextAvailableIndexForHash = 0;
+	size_t nextAvailableIndexForMap = 0;
 
 	for (size_t i = 0; i < len; i++) {
-		size_t index = m__hash_find(countsKeys, nextAvailableIndexForHash + 1, sizeof(desiredType), &list[i], m__cmp_desiredType);
+		size_t index = m__map_find(countsKeys, nextAvailableIndexForMap + 1, sizeof(desiredType), &list[i], m__cmp_desiredType);
 		size_t count = 0;
-		if (index == nextAvailableIndexForHash + 1) {
-			countsKeys[nextAvailableIndexForHash] = list[i];
-			count = countsValues[nextAvailableIndexForHash] = 1;
-			nextAvailableIndexForHash++;
+		if (index == nextAvailableIndexForMap + 1) {
+			countsKeys[nextAvailableIndexForMap] = list[i];
+			count = countsValues[nextAvailableIndexForMap] = 1;
+			nextAvailableIndexForMap++;
 		} else {
 			count = ++countsValues[index];
 		}
@@ -153,7 +153,7 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 	if (highestCount == 1) {
 		*result = NULL;
 		*lenOfResult = 0;
-		goto FREE_HASH_SUCCESS;
+		goto FREE_MAP_SUCCESS;
 	}
 
 	desiredType *listOfItems = (desiredType *)calloc(len, sizeof(desiredType));
@@ -171,13 +171,13 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 	*result = listOfItems;
 	*lenOfResult = nextAvailableIndexForList;
 
-	FREE_HASH_FAIL:
+	FREE_MAP_FAIL:
 	free(countsKeys);
 	free(countsValues);
 
-	return MATHFUNCTIONS_ERROR_FAIL;
+	return MATHFUNCTIONS_ERROR_FAILED;
 
-	FREE_HASH_SUCCESS:
+	FREE_MAP_SUCCESS:
 	free(countsKeys);
 	free(countsValues);
 
