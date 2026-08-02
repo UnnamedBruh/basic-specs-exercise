@@ -138,9 +138,9 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 	size_t nextAvailableIndexForMap = 0;
 
 	for (size_t i = 0; i < len; i++) {
-		size_t index = m__map_find(countsKeys, nextAvailableIndexForMap + 1, sizeof(desiredType), &list[i], m__cmp_desiredType);
+		size_t index = m__map_find(countsKeys, nextAvailableIndexForMap, sizeof(desiredType), &list[i], m__cmp_desiredType);
 		size_t count = 0;
-		if (index == nextAvailableIndexForMap + 1) {
+		if (index == nextAvailableIndexForMap) {
 			countsKeys[nextAvailableIndexForMap] = list[i];
 			count = countsValues[nextAvailableIndexForMap] = 1;
 			nextAvailableIndexForMap++;
@@ -170,6 +170,8 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 
 	*result = listOfItems;
 	*lenOfResult = nextAvailableIndexForList;
+
+	goto FREE_MAP_SUCCESS;
 
 	FREE_MAP_FAIL:
 	free(countsKeys);
