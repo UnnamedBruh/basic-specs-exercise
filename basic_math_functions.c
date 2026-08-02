@@ -33,7 +33,7 @@ Importantly, how the functions are implemented is not a concern. What mainly mat
 // ----- IMPLEMENTATION DETAILS ----- //
 
 // C pointers use zero-indexed systems. They are compatible with the lists specified in the reference document.
-// However, C lacks maps that the specification implies are supported, so we have to define our own hash-map system.
+// However, C lacks maps that the specification implies are supported, so we have to define our own map system.
 // C also lacks template systems, so we must either choose one type, or define near-identical functions for different types.
 
 #include <stdlib.h>
@@ -157,7 +157,7 @@ int mode(const desiredType* list, const size_t len, desiredType** result, size_t
 	}
 
 	desiredType *listOfItems = (desiredType *)calloc(len, sizeof(desiredType));
-	if (listOfItems == NULL) goto FREE_HASH_FAIL;
+	if (listOfItems == NULL) goto FREE_MAP_FAIL;
 
 	size_t nextAvailableIndexForList = 0;
 
