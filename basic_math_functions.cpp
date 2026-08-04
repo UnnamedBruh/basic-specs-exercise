@@ -91,12 +91,16 @@ std::vector<T> mode(const std::vector<T>& list) {
 	throwIfListIsEmpty(list);
 
 	std::unordered_map<T, size_t> counts;
+	std::vector<T> keysOrder;
 	size_t highestCount = 0;
 
 	for (const T& item : list) {
 		auto foundPair = counts.find(item);
 		size_t count = 0;
-		if (foundPair == counts.end()) count = counts[item] = 1; else count = ++foundPair->second;
+		if (foundPair == counts.end()) {
+			count = counts[item] = 1;
+			keysOrder.push_back(item);
+		} else count = ++foundPair->second;
 		if (highestCount < count) highestCount = count;
 	}
 
@@ -104,8 +108,8 @@ std::vector<T> mode(const std::vector<T>& list) {
 
 	std::vector<T> commonValues;
 
-	for (const auto& [key, value] : counts) {
-		if (value == highestCount) commonValues.push_back(key);
+	for (const T& key : keysOrder) {
+		if (counts[key] == highestCount) commonValues.push_back(key);
 	}
 
 	return commonValues;
