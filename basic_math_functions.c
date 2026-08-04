@@ -85,18 +85,20 @@ int median(const desiredType* list, const size_t len, desiredType* result) {
 	if (validate(list, len)) return MATHFUNCTIONS_ERROR_FAILED;
 	if (isListEmpty(len)) return MATHFUNCTIONS_ERROR_FAILED;
 
-	desiredType *allocatedMemory = (desiredType *)malloc(len * sizeof(desiredType));
-	if (allocatedMemory == NULL) return MATHFUNCTIONS_ERROR_FAILED;
+	desiredType *sorted = (desiredType *)malloc(len * sizeof(desiredType));
+	if (sorted == NULL) return MATHFUNCTIONS_ERROR_FAILED;
 
-	memcpy(allocatedMemory, list, len * sizeof(desiredType));
+	memcpy(sorted, list, len * sizeof(desiredType));
 
-	qsort(allocatedMemory, len, sizeof(desiredType), m__compare_desiredType);
+	qsort(sorted, len, sizeof(desiredType), m__compare_desiredType);
 	// Note: " ... there is a negligible performance overhead for when it attempts to sort an already sorted list. However, it produces the correct result regardless of whether x is or is not sorted."
 
 	if (len % 2 == 0) // If the list's length is even
-		*result = (allocatedMemory[len / 2 - 1] + allocatedMemory[len / 2]) / (desiredType)2;
+		*result = (sorted[len / 2 - 1] + sorted[len / 2]) / (desiredType)2;
 	else // If the list's length is odd
-		*result = allocatedMemory[(len - 1) / 2];
+		*result = sorted[(len - 1) / 2];
+
+	free(sorted);
 
 	return MATHFUNCTIONS_ERROR_SUCCESS;
 }
