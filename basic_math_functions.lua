@@ -100,10 +100,17 @@ function mode(list)
 	throwIfListIsEmpty(list)
 
 	local counts = {}
+	local keysOrder = {}
+
 	local highestCount = 0
 
 	for _, item in ipairs(list) do
-		counts[item] = (counts[item] or 0) + 1
+		if counts[item] then
+			counts[item] = counts[item] + 1
+		else
+			counts[item] = (counts[item] or 0) + 1
+			keysOrder[#keysOrder + 1] = item
+		end
 
 		if counts[item] > highestCount then
 			highestCount = counts[item]
@@ -117,8 +124,8 @@ function mode(list)
 
 	local commonValues = {}
 
-	for key, value in pairs(counts) do
-		if value == highestCount then
+	for i = 1, #keysOrder do
+		if counts[keysOrder[i]] == highestCount then
 			table.insert(commonValues, key)
 		end
 	end
