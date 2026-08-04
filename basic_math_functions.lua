@@ -125,7 +125,8 @@ function mode(list)
 	local commonValues = {}
 
 	for i = 1, #keysOrder do
-		if counts[keysOrder[i]] == highestCount then
+		local key = keysOrder[i]
+		if counts[key] == highestCount then
 			table.insert(commonValues, key)
 		end
 	end
