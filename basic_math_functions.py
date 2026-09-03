@@ -68,61 +68,46 @@ def median(inputlist):
 	else:
 		return sortedlist[length / 2]
 
-function mode(list)
-	validate(list)
-	throwIfListIsEmpty(list)
+def mode(inputlist):
+	validate(inputlist)
+	throwIfListIsEmpty(inputlist)
 
-	local counts = {}
-	local keysOrder = {}
+	counts = {}
+	highestCount = 0
 
-	local highestCount = 0
-
-	for _, item in ipairs(list) do
-		if counts[item] then
+	for item in inputlist:
+		if counts[item]:
 			counts[item] = counts[item] + 1
-		else
+		else:
 			counts[item] = (counts[item] or 0) + 1
-			keysOrder[#keysOrder + 1] = item
-		end
 
-		if counts[item] > highestCount then
+		if counts[item] > highestCount:
 			highestCount = counts[item]
-		end
-	end
 
-	-- No repeated values
-	if highestCount == 1 then
-		return {}
-	end
+	if highestCount == 1:
+		return []
 
-	local commonValues = {}
+	commonValues = []
 
-	for i = 1, #keysOrder do
-		local key = keysOrder[i]
-		if counts[key] == highestCount then
-			table.insert(commonValues, key)
-		end
-	end
+	for key in counts:
+		if counts[key] == highestCount:
+			commonValues.append(key)
 
 	return commonValues
-end
 
-function range(list)
-	validate(list)
-	throwIfListIsEmpty(list)
+# Note: "range" is a reserved function in Python
+def _range(inputlist)
+	validate(inputlist)
+	throwIfListIsEmpty(inputlist)
 
-	local minimumValue = list[1]
-	local maximumValue = list[1]
+	minimumValue = inputlist[0]
+	maximumValue = inputlist[0]
 
-	for _, item in ipairs(list) do
-		if item < minimumValue then
+	for item in inputlist:
+		if item < minimumValue:
 			minimumValue = item
-		end
 
-		if item > maximumValue then
+		if item > maximumValue:
 			maximumValue = item
-		end
-	end
 
 	return maximumValue - minimumValue
-end
