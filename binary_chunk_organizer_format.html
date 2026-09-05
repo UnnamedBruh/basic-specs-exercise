@@ -65,7 +65,7 @@ Total Size: 32 bytes (multiple of 8)</pre>
 						<a>A chunk is structured as:</a>
 						<ol type="1" start="1">
 							<li><code>chunkHdr</code>: An 8-byte, endian-neutral string whose value is arbitrary. If its size is below 8 bytes, it must be padded with null bytes.</li>
-							<li><code>chunkSize</code>: An 8-byte integer that specifies the size of the binary data (in bytes). The size does not include this chunk, nor its padding.</li>
+							<li><code>chunkSize</code>: An 8-byte integer that specifies the size of the binary data (in bytes). The size does not include the chunkHdr, chunkSize, flags nor its padding.</li>
 							<li><code>flags</code>: An 8-byte integer that must always be 0.</li>
 							<li><code>binaryData</code>: A variable-size block of data whose structure is arbitrary.</li>
 						</ol>
