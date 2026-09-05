@@ -40,7 +40,7 @@
 						<ol type="1" start="1">
 							<li><code>hdr</code>: An 8-byte, endian-neutral string whose value is <code>"BCOF\0\0\0\0"</code> (without quotes), where each <code>\0</code> is a null byte.</li>
 							<li><code>filesize</code>: An 8-byte integer that specifies the file size (in bytes). The file size includes this header.</li>
-							<li><code>version</code>: A 2-byte integer that specifies the version of the BCOF format.</li>
+							<li><code>version</code>: A 2-byte integer that specifies the version of the BCOF format. This must always be 0.</li>
 							<li><code>reserved</code>: A reserved block of data that is 6 null bytes.</li>
 							<li><code>reserved2</code>: A reserved block of data that is 8 null bytes.</li>
 						</ol>
