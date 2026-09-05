@@ -7,6 +7,7 @@
 	<body>
 		<a class="header">Binary Chunk Organizer Format</a>
 		<a class="header" style="font-size: 23px">By UnnamedBruh</a>
+		<a class="header" style="font-size: 10px">Version 0</a>
 		<a>This document is an independent exercise in writing specifications. It defines the Binary Chunk Organizer Format (<b>BCOF</b>), which is heavily inspired by the Resource Interchange File Format (<b>RIFF</b>).</a>
 		<ol type="1" start="1">
 			<li><a href="#vocab">Phrases</a></li>
@@ -40,7 +41,7 @@
 						<ol type="1" start="1">
 							<li><code>hdr</code>: An 8-byte, endian-neutral string whose value is <code>"BCOF\0\0\0\0"</code> (without quotes), where each <code>\0</code> is a null byte.</li>
 							<li><code>filesize</code>: An 8-byte integer that specifies the file size (in bytes). The file size includes this header, the chunk sizes, and all the padding.</li>
-							<li><code>version</code>: A 2-byte integer that specifies the version of the BCOF format. This must be 0 for this version of the specification.</li>
+							<li><code>version</code>: A 2-byte integer that specifies the version of the BCOF format. This must be 0 for the version of this document.</li>
 							<li><code>reserved</code>: A reserved block of data that is 6 null bytes.</li>
 							<li><code>reserved2</code>: A reserved block of data that is 8 null bytes.</li>
 						</ol>
@@ -66,20 +67,25 @@ Total Size: 32 bytes (multiple of 8)</pre>
 						<ol type="1" start="1">
 							<li><code>chunkHdr</code>: An 8-byte, endian-neutral string whose value is arbitrary. If its size is below 8 bytes, it must be padded with null bytes.</li>
 							<li><code>chunkSize</code>: An 8-byte integer that specifies the size of the binary data (in bytes). The size does not include the chunkHdr, chunkSize, flags nor its padding.</li>
-							<li><code>flags</code>: An 8-byte integer that must always be 0.</li>
+							<li><code>flags</code>: An 8-byte integer that must be 0 for the version of this document.</li>
 							<li><code>binaryData</code>: A variable-size block of data whose structure is arbitrary.</li>
 						</ol>
 						<br>
-						<a>Each chunk is padded to an 8-byte block. The padding bytes must be null.</a>
+						<a>The binaryData is padded to an 8-byte block. The padding bytes are located at the end of the binaryData, and must be null.</a>
 						<br>
 						<a>This is an example of a chunk. The formatting is the same as the previous example.</a>
 						<pre>65 78 61 6D 70 6C 65 00 &lt;- ChunkHdr (value is "example\0")
 0C 00 00 00 00 00 00 00 &lt;- ChunkSize (value is 12)
 00 00 00 00 00 00 00 00 &lt;- Flags (value is 0)
 48 65 6C 6C 6F 2C 20 42 43 4F 46 21 &lt;- BinaryData (value is "Hello, BCOF!")
-00 00 00 00 &lt;- Padding (so that the chunk is padded to an 8-byte block)
+00 00 00 00 &lt;- Padding (so that the binaryData is padded to an 8-byte block)
 
 Total Size: 40 bytes (multiple of 8)</pre>
+						<br>
+						<a>Notes:</a>
+						<ul>
+							<li>If the implementation does not recognize a chunk or its binary data, it must not throw an error. Instead, it must ignore the chunk.</li>
+						</ul>
 					</li>
 				</ul>
 			</li>
@@ -88,11 +94,11 @@ Total Size: 40 bytes (multiple of 8)</pre>
 				<br>
 				<a>There are planned to be official implementations in a few programming languages. Languages whose specifications are open have a link to that specification:</a>
 				<ul>
-					<li>C, <a style="display: inline" href="binary_chunk_organizer_format.c" onclick="event.preventDefault()">implementation</a></li>
-					<li>C++, <a style="display: inline" href="binary_chunk_organizer_format.cpp" onclick="event.preventDefault()">implementation</a></li>
-					<li><a style="display: inline" href="https://tc39.es/ecma262/">ECMAScript</a>, <a style="display: inline" href="binary_chunk_organizer_format.js" onclick="event.preventDefault()">implementation</a></li>
-					<li><a style="display: inline" href="https://www.lua.org/manual/5.4/manual.html">Lua</a>, <a style="display: inline" href="binary_chunk_organizer_format.lua" onclick="event.preventDefault()">implementation</a></li>
-					<li><a style="display: inline" href="https://docs.python.org/3.14/reference/index.html">Python</a>, <a style="display: inline" href="binary_chunk_organizer_format.py" onclick="event.preventDefault()">implementation</a></li>
+					<li>C, <a style="display: inline" href="binary_chunk_organizer_format_v0.c" onclick="event.preventDefault()">implementation</a></li>
+					<li>C++, <a style="display: inline" href="binary_chunk_organizer_format_v0.cpp" onclick="event.preventDefault()">implementation</a></li>
+					<li><a style="display: inline" href="https://tc39.es/ecma262/">ECMAScript</a>, <a style="display: inline" href="binary_chunk_organizer_format_v0.js" onclick="event.preventDefault()">implementation</a></li>
+					<li><a style="display: inline" href="https://www.lua.org/manual/5.4/manual.html">Lua</a>, <a style="display: inline" href="binary_chunk_organizer_format_v0.lua" onclick="event.preventDefault()">implementation</a></li>
+					<li><a style="display: inline" href="https://docs.python.org/3.14/reference/index.html">Python</a>, <a style="display: inline" href="binary_chunk_organizer_format_v0.py" onclick="event.preventDefault()">implementation</a></li>
 				</ul>
 			</li>
 		</ol>
