@@ -38,7 +38,7 @@
 					<li>
 						<a>All Binary Chunk Organizer Format (BCOF) files must begin with a header. Its structure is:</a>
 						<ol type="1" start="1">
-							<li><code>hdr</code>: An 8-byte, endian-neutral string whose value is "BCOF\0\0\0\0" (without quotes), where each <code>\0</code> is a null byte.</li>
+							<li><code>hdr</code>: An 8-byte, endian-neutral string whose value is <code>"BCOF\0\0\0\0"</code> (without quotes), where each <code>\0</code> is a null byte.</li>
 							<li><code>filesize</code>: An 8-byte integer that specifies the file size (in bytes). The file size includes this header.</li>
 							<li><code>version</code>: A 2-byte integer that specifies the version of the BCOF format.</li>
 							<li><code>reserved</code>: A reserved block of data that is 6 null bytes.</li>
@@ -47,9 +47,7 @@
 						<br>
 						<a>Each field is not padded to a number of bytes, unless specified otherwise.</a>
 						<br>
-						<br>
 						<a>In this example, a block of data is represented using hexadecimal bytes.</a>
-						<br>
 						<pre>42 43 4F 46 00 00 00 00 &lt;- Header
 FF 00 00 00 00 00 00 00 &lt;- Filesize (value is 255)
 00 00 &lt;- Version (value is 0)
@@ -74,9 +72,7 @@ Total Size: 32 bytes (multiple of 8)</pre>
 						<br>
 						<a>Each chunk is padded to an 8-byte block. The padding bytes must be null.</a>
 						<br>
-						<br>
 						<a>This is an example of a chunk. The details are the same as the previous example.</a>
-						<br>
 						<pre>65 78 61 6D 70 6C 65 00 &lt;- ChunkHdr (value is "example\0")
 0C 00 00 00 00 00 00 00 &lt;- ChunkSize (value is 12)
 00 00 00 00 00 00 00 00 &lt;- Flags (initialized to 0)
