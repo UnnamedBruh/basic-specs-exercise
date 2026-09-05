@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Binary Chunk Organizer Format</title>
+		<link rel="stylesheet" href="styles.css">
+	</head>
+	<body>
+		<a class="header">Binary Chunk Organizer Format</a>
+		<a class="header" style="font-size: 23px">By UnnamedBruh</a>
+		<a>This document is an independent exercise in writing specifications. It defines the Binary Chunk Organizer Format (<b>BCOF</b>), which is heavily inspired by the Resource Interchange File Format (<b>RIFF</b>).</a>
+		<ol type="1" start="1">
+			<li><a href="#vocab">Phrases</a></li>
+			<li><a href="#core-structure">Core Structure</a></li>
+			<li><a href="#implementations">Official Implementations</a></li>
+		</ol>
+		<hr>
+		<ol type="1" start="1">
+			<li>
+				<a id="vocab">Phrases</a>
+				<br>
+				<a>The following vocabulary applies in this document.</a>
+				<ol type="1" start="1">
+					<li><a>"Thing" refers to a rule, definition or specification.</a></li>
+					<li><a>"Must" is an absolute <b>requirement</b> of a thing.</a></li>
+					<li><a>"Must not" is an absolute <b>prohibition</b> of a thing.</a></li>
+					<hr>
+					<li><a>"Endian-neutral" means a value's binary structure is unaffected regardless of the preferred byte order of an architecture. This applies to writing or reading binary data into/from a file.</a></li>
+					<li><a>"Integer" means a block of memory that must be interpreted as a little-endian unsigned integer.</a></li>
+				</ol>
+			</li>
+			<li>
+				<a id="core-structure">Core Structure</a>
+				<br>
+				<a>The Binary Chunk Organizer Format is a file format that intends to organize binary data into machine-readable chunks. This can be useful for situations where unorganized information can be undesirable. It is organized into a header, and a list of chunks.</a>
+				<br>
+				<a>Below is its structure.</a>
+				<ul>
+					<li>
+						<a>All Binary Chunk Organizer Format (BCOF) files must begin with a header. Its structure is:</a>
+						<ol type="1" start="1">
+							<li><code>hdr</code>: An 8-byte, endian-neutral string whose value is "BCOF\0\0\0\0" (without quotes), where each <code>\0</code> is a null byte.</li>
+							<li><code>filesize</code>: An 8-byte integer that specifies the file size (in bytes). The file size includes this header.</li>
+							<li><code>version</code>: A 2-byte integer that specifies the version of the BCOF format.</li>
+							<li><code>reserved</code>: A reserved block of data that is 6 null bytes.</li>
+							<li><code>reserved2</code>: A reserved block of data that is 8 null bytes.</li>
+						</ol>
+						<br>
+						<a>Each field is not padded to a number of bytes, unless specified otherwise.</a>
+						<br>
+						<br>
+						<a>In this example, a block of data is represented using hexadecimal bytes.</a>
+						<br>
+						<pre>42 43 4F 46 00 00 00 00 &lt;- Header
+FF 00 00 00 00 00 00 00 &lt;- Filesize (value is 255)
+00 00 &lt;- Version (value is 0)
+00 00 00 00 00 00 &lt;- Reserved (initialized to 0)
+00 00 00 00 00 00 00 00 &lt;- Reserved2 (initialized to 0)
+
+Total Size: 32 bytes (multiple of 8)</pre>
+					</li>
+					<li>
+						<a>What follows after the header is:</a>
+						<ol type="1" start="1">
+							<li><code>chunkList</code>: A variable-size array of chunks whose structure is the chunks themselves, or nothing if there are no chunks.</li>
+						</ol>
+						<br>
+						<a>A chunk is structured as:</a>
+						<ol type="1" start="1">
+							<li><code>chunkHdr</code>: An 8-byte, endian-neutral string whose value can vary.</li>
+							<li><code>chunkSize</code>: An 8-byte integer that specifies the size of the binary data (in bytes). The size does not include this chunk.</li>
+							<li><code>flags</code>: A reserved block of data that is 8 null bytes.</li>
+							<li><code>binaryData</code>: A variable-size block of data whose structure can vary.</li>
+						</ol>
+						<br>
+						<a>Each chunk is padded to an 8-byte block. The padding bytes must be null.</a>
+						<br>
+						<br>
+						<a>This is an example of a chunk. The details are the same as the previous example.</a>
+						<br>
+						<pre>65 78 61 6D 70 6C 65 00 &lt;- ChunkHdr (value is "example\0")
+0C 00 00 00 00 00 00 00 &lt;- ChunkSize (value is 12)
+00 00 00 00 00 00 00 00 &lt;- Flags (initialized to 0)
+48 65 6C 6C 6F 2C 20 42 43 4F 46 21 &lt;- BinaryData (value is "Hello, BCOF!")
+00 00 00 00 &lt;- Padding (so that the chunk is padded to an 8-byte block)
+
+Total Size: 40 bytes (multiple of 8)</pre>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<a id="implementations">Official Implementations</a>
+				<br>
+				<a>There are planned to be official implementations in a few programming languages. Languages whose specifications are open have a link to that specification:</a>
+				<ul>
+					<li>C, <a style="display: inline" href="binary_chunk_organizer_format.c" onclick="event.preventDefault()">implementation</a></li>
+					<li>C++, <a style="display: inline" href="binary_chunk_organizer_format.cpp" onclick="event.preventDefault()">implementation</a></li>
+					<li><a style="display: inline" href="https://tc39.es/ecma262/">ECMAScript</a>, <a style="display: inline" href="binary_chunk_organizer_format.js" onclick="event.preventDefault()">implementation</a></li>
+					<li><a style="display: inline" href="https://www.lua.org/manual/5.4/manual.html">Lua</a>, <a style="display: inline" href="binary_chunk_organizer_format.lua" onclick="event.preventDefault()">implementation</a></li>
+					<li><a style="display: inline" href="https://docs.python.org/3.14/reference/index.html">Python</a>, <a style="display: inline" href="binary_chunk_organizer_format.py" onclick="event.preventDefault()">implementation</a></li>
+				</ul>
+			</li>
+		</ol>
+	</body>
+</html>
