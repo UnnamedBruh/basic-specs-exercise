@@ -24,9 +24,11 @@
 					<li><a>"Thing" refers to a rule, definition or specification.</a></li>
 					<li><a>"Must" is an absolute <b>requirement</b> of a thing.</a></li>
 					<li><a>"Must not" is an absolute <b>prohibition</b> of a thing.</a></li>
+					<li><a>"Should" is a <b>recommendation</b> to implement a thing.</a></li>
 					<hr>
 					<li><a>"Endian-neutral" means a value's binary structure is unaffected regardless of the preferred byte order of an architecture. This applies to writing or reading binary data into/from a file.</a></li>
 					<li><a>"Integer" means a block of memory that must be interpreted as a little-endian unsigned integer.</a></li>
+					<li><a>"Fail gracefully" means to stop parsing the BCOF format, or throw an error. The exact behavior is up to the implementation.</a></li>
 				</ol>
 			</li>
 			<li>
@@ -56,6 +58,12 @@
 00 00 00 00 00 00 00 00 &lt;- Reserved2 (initialized to 0)
 
 Total Size: 32 bytes (multiple of 8)</pre>
+						<br>
+						<a>Notes:</a>
+						<ul>
+							<li>If the implementation does not recognize the version of the BCOF format, it should fail gracefully.</li>
+							<li>If any byte in the <code>reserved</code> and <code>reserved2</code> fields are not null, and the version is 0, the implementation must fail gracefully.</li>
+						</ul>
 					</li>
 					<li>
 						<a>What follows after the header is:</a>
@@ -84,7 +92,7 @@ Total Size: 40 bytes (multiple of 8)</pre>
 						<br>
 						<a>Notes:</a>
 						<ul>
-							<li>If the implementation does not recognize a chunk or its binary data, it must not throw an error. Instead, it must ignore the chunk.</li>
+							<li>If the implementation does not recognize a chunk or its binary data, it must not throw an error. Instead, it must either ignore that chunk, or stop parsing the format. The exact behavior is implementation-defined.</li>
 						</ul>
 					</li>
 				</ul>
