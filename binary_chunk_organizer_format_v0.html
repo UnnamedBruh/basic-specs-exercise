@@ -29,6 +29,7 @@
 					<li><a>"Endian-neutral" means a value's binary structure is unaffected regardless of the preferred byte order of an architecture. This applies to writing or reading binary data into/from a file.</a></li>
 					<li><a>"Integer" means a block of memory that must be interpreted as a little-endian unsigned integer.</a></li>
 					<li><a>"Fail gracefully" means to stop parsing the BCOF format, or throw an error. The exact behavior is up to the implementation.</a></li>
+					<li><a>A backslash followed by a three-digit number is an octal escape. <code>\0</code> is an octal escape representing 0. <code>\1</code> is an octal escape representing 1. etc.</a></li>
 				</ol>
 			</li>
 			<li>
@@ -73,7 +74,12 @@ Total Size: 32 bytes (multiple of 8)</pre>
 						<br>
 						<a>A chunk is structured as:</a>
 						<ol type="1" start="1">
-							<li><code>chunkHdr</code>: An 8-byte, endian-neutral string whose value is arbitrary. If its size is below 8 bytes, it must be padded with null bytes.</li>
+							<li><code>chunkHdr</code>: An 8-byte, endian-neutral string whose value is arbitrary. If its size is below 8 bytes, it must be padded with null bytes. Examples include: <code>"example\0"</code>. <code>"name\0\0\0\0"</code>. <code>"settings"</code>. Its length is calculated by finding the last null byte. Each <code>\0</code> indicates a null byte.<br><br>Edge case examples include:<br><ul>
+								<li><code>"one\0two\0"</code>: The first null byte must be treated as part of the string. The second must be treated as padding.</li>
+								<li><code>"\0\0\0\0\0\0\0\0"</code>: The field is an empty string value. Each null byte is padding.</li>
+								<li><code>"pear\1\1\1\1"</code>: A <code>\1</code> indicates a byte with the value of 1. Each 1-value byte must be treated as part of the string.</li>
+								<li><code>"ü5·¼ÆM4Â"</code>: The field is 8 bytes (or 8 characters).</li>
+							</ul></li>
 							<li><code>chunkSize</code>: An 8-byte integer that specifies the size of the binary data (in bytes). The size does not include the chunkHdr, chunkSize, flags nor its padding.</li>
 							<li><code>flags</code>: An 8-byte integer that must be 0 for the version of this document.</li>
 							<li><code>binaryData</code>: A variable-size block of data whose structure is arbitrary.</li>
