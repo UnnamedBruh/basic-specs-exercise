@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Binary Chunk Organizer Format (Revision 1)</title>
+		<link rel="stylesheet" href="styles.css">
+	</head>
+	<body>
+		<a class="header">Binary Chunk Organizer Format</a>
+		<a class="header" style="font-size: 23px">By UnnamedBruh</a>
+		<a class="header" style="font-size: 10px">Version 1</a>
+		<a>This document is an independent exercise in writing specifications. It defines the Binary Chunk Organizer Format (<b>BCOF</b>), which is heavily inspired by the Resource Interchange File Format (<b>RIFF</b>).</a>
+		<ol type="1" start="1">
+			<li><a href="#vocab">Phrases</a></li>
+			<li><a href="#core-structure">Core Structure</a></li>
+			<li><a href="#implementations">Official Implementations</a></li>
+		</ol>
+		<hr>
+		<ol type="1" start="1">
+			<li>
+				<a id="vocab">Phrases</a>
+				<br>
+				<a>The following vocabulary applies in this document.</a>
+				<ol type="1" start="1">
+					<li><a>"Thing" refers to a rule, definition or specification.</a></li>
+					<li><a>"Must" is an absolute <b>requirement</b> of a thing.</a></li>
+					<li><a>"Must not" is an absolute <b>prohibition</b> of a thing.</a></li>
+					<li><a>"Should" is a <b>recommendation</b> to implement a thing.</a></li>
+					<hr>
+					<li><a>"Endian-neutral" means a value's binary structure is unaffected regardless of the preferred byte order of an architecture. This applies to writing or reading binary data into/from a file.</a></li>
+					<li><a>"Integer" means a block of memory that must be interpreted as a little-endian unsigned integer.</a></li>
+					<li><a>"Fail gracefully" means to stop parsing the BCOF format, or throw an error. The exact behavior is up to the implementation.</a></li>
+					<li><a>A backslash followed by a three-digit number is an octal escape. <code>\0</code> is an octal escape representing 0. <code>\1</code> is an octal escape representing 1. etc.</a></li>
+					<li><a>A "byte-level string" is encoded strictly in extended ASCII (ISO-8859-1), where each character is a fixed 8 bits. Strings that were originally in another encoding must be re-encoded into extended ASCII (ISO-8859-1); this rule applies when overwriting a field. If characters cannot be represented in ISO-8859-1, they should be replaced with question marks (?). If its size is below 8 bytes, it must be padded with null bytes. If it exceeds 9 bytes, it must be truncated to the first 8 bytes. Its final length is calculated by finding the last null byte.</a></li>
+				</ol>
+			</li>
+			<li>
+				<a id="core-structure">Core Structure</a>
+				<br>
+				<a>The Binary Chunk Organizer Format is a file format that intends to organize binary data into machine-readable chunks. This can be useful for situations where unorganized information can be undesirable. It is organized into a header, and a list of chunks.</a>
+				<br>
+				<a>Below is its structure.</a>
+				<ul>
+					<li>
+						<a>All Binary Chunk Organizer Format (BCOF) files must begin with a header. Its structure is:</a>
+						<ol type="1" start="1">
+							<li><code>hdr</code>: An 8-byte, endian-neutral string whose value is <code>"BCOF\0\0\0\0"</code> (without quotes), where each <code>\0</code> is a null byte.</li>
+							<li><code>filesize</code>: An 8-byte integer that specifies the file size (in bytes). The file size includes this header, the chunk sizes, and all the padding.</li>
+							<li><code>version</code>: A 2-byte integer that specifies the version of the BCOF format. This must be 1 for the version of this document.</li>
+							<li><code>reserved</code>: A reserved block of data that is 6 null bytes.</li>
+							<li><code>reserved2</code>: A reserved block of data that is 8 null bytes.</li>
+						</ol>
+						<br>
+						<a>Each field is not padded to a number of bytes, unless specified otherwise.</a>
+						<br>
+						<a>In this example, a block of data is represented using hexadecimal bytes.</a>
+						<pre>42 43 4F 46 00 00 00 00 &lt;- Header
+48 00 00 00 00 00 00 00 &lt;- Filesize (value is 72)
+00 00 &lt;- Version (value is 0)
+00 00 00 00 00 00 &lt;- Reserved (initialized to 0)
+00 00 00 00 00 00 00 00 &lt;- Reserved2 (initialized to 0)
+
+Total Size: 32 bytes (multiple of 8)</pre>
+						<br>
+						<a>Notes:</a>
+						<ul>
+							<li>If the implementation does not recognize the version of the BCOF format, it should fail gracefully.</li>
+							<li>If any byte in the <code>reserved</code> and <code>reserved2</code> fields are not null, and the version is 0, the implementation must fail gracefully.</li>
+						</ul>
+					</li>
+					<li>
+						<a>What follows after the header is:</a>
+						<ol type="1" start="1">
+							<li><code>chunkList</code>: A variable-size array of chunks whose structure is the chunks themselves, or nothing if there are no chunks.</li>
+						</ol>
+						<br>
+						<a>A chunk is structured as:</a>
+						<ol type="1" start="1">
+							<li><code>chunkHdr</code>: An 8-byte, endian-neutral byte-level string whose value is arbitrary. Examples include: <code>"example\0"</code>. <code>"name\0\0\0\0"</code>. <code>"settings"</code>. <code>"erroneou"</code> (originally <code>"erroneously"</code>). Each <code>\0</code> indicates a null byte.<br><br>Edge case examples include:<br><ul>
+								<li><code>"one\0two\0"</code>: The first null byte must be treated as part of the string. The second must be treated as padding.</li>
+								<li><code>"\0\0\0\0\0\0\0\0"</code>: The field is an empty string value. Each null byte is padding.</li>
+								<li><code>"pear\1\1\1\1"</code>: A <code>\1</code> indicates a byte with the value of 1. Each 1-value byte must be treated as part of the string.</li>
+								<li><code>"ü5·¼ÆM4Â"</code>: The field is 8 bytes.</li>
+							</ul></li>
+							<li><code>chunkSize</code>: An 8-byte integer that specifies the size of the binary data (in bytes). The size does not include the chunkHdr, chunkSize, flags nor its padding.</li>
+							<li><code>flags</code>: An 8-byte integer that must be 0 for the version of this document.</li>
+							<li><code>binaryData</code>: A variable-size block of data whose structure is arbitrary.</li>
+						</ol>
+						<br>
+						<a>The binaryData is padded to an 8-byte block. The padding bytes are located at the end of the binaryData, and must be null.</a>
+						<br>
+						<a>This is an example of a chunk. The formatting is the same as the previous example.</a>
+						<pre>65 78 61 6D 70 6C 65 00 &lt;- ChunkHdr (value is "example\0")
+0C 00 00 00 00 00 00 00 &lt;- ChunkSize (value is 12)
+00 00 00 00 00 00 00 00 &lt;- Flags (value is 0)
+48 65 6C 6C 6F 2C 20 42 43 4F 46 21 &lt;- BinaryData (value is "Hello, BCOF!")
+00 00 00 00 &lt;- Padding (so that the binaryData is padded to an 8-byte block)
+
+Total Size: 40 bytes (multiple of 8)</pre>
+						<br>
+						<a>Notes:</a>
+						<ul>
+							<li>If the implementation does not recognize a chunk or its binary data, it must not throw an error. Instead, it must either ignore that chunk, or stop parsing the format. The exact behavior is implementation-defined.</li>
+						</ul>
+					</li>
+					<li>
+						<a>Below is a list of chunks that are reserved by this specification, where a string literal represents its <code>chunkHdr</code>:</a>
+						<ol type="1" start="1">
+							<li><code>"metadata"</code><br><br>
+							<a>This chunk represents the metadata for the Binary Chunk Organizer Format file. Its <code>binaryData</code> is a list of <b>metadata chunks</b>, which is structured as those metadata chunks.</a></li>
+						</ol>
+					</li>
+					<li>
+						<a>Each metadata chunk is structured as:</a><br><br>
+						<ul>
+							<li><code>name</code>: A 12-byte, endian-neutral byte-level string.</li>
+							<li><code>size</code>: An 8-byte integer representing the number of bytes of <code>value</code>.</li>
+							<li><code>id</code>: An 8-byte integer whose value represents an identifier for this metadata chunk. If a metadata chunk has the same <code>name</code> as another, its <code>id</code> must be unique.</li>
+							<li><code>value</code>: An arbitrary-length, endian-neutral string that is encoded in extended ASCII (ISO-8859-1). This field is padded to an 8-byte block using null bytes. The padding is at the end of the string. <b>It must not be empty.</b></li>
+						</ul><br><br>
+						<a>This is the list of allowed metadata chunks, where a string literal represents its <code>name</code>, and "document" refers to a BCOF file:</a>
+						<h1>Humorous/Joke Fields</h1>
+						<ol type="1" start="1">
+							<li><code>"humoroustext"</code>: Any text that does not serve a particular purpose. It can be used to include text that is not serious. Examples include: <code>"Your mom."</code>, <code>"I broke my back when I turned off the TV yesterday."</code>, <code>"Your table is secretly plotting a crime."</code>, <code>"im crine, lol..."</code>, <code>"I tore out my hair while making this. I seriously hope it does something good."</code> UnnamedBruh, the creator of the BCOF format, agrees with the latter statement.</li>
+						</ol>
+						<h1>Descriptions/Legal</h1>
+						<ol type="1" start="1">
+							<li><code>"consequences"</code>: A description or summary of potential legal actions that <b>will</b> be taken upon violating the rights of the legal entities. This does <b>not</b> include threats, in spite of the generic "consequences" naming. This can be desirable when the <code>"license"</code> field does not explicitly name them. If exact legal actions are unknown, or must not be included for any reason, a generic <code>"Rights to this document terminate upon violating the license."</code>, or <code>"Do not use this document if you do not agree to the license."</code> will do. Threats like <code>"You will become a ghost someday."</code> do not belong in this field.</li>
+							<li><code>"description\0"</code>: A description or summary of the document that has an arbitrary word count. It must be relevant to the <code>"title"</code>, <code>"name"</code> or <code>"copyright"</code> fields, or the contents of the document. Examples include: <code>"A grayscale image of the Moon in a portrait orientation."</code>, <code>"JavaLava2345 is a programmer that's famous for reciting the longest Spanish word."</code></li>
+							<li><code>"disclaimer\0\0"</code>: A cautionary warning, or description. It specifies mandatory information, or information that must be known before the document can be used. <b>Note that</b> "<b>warnings</b>" <b>like</b> <code>"Contains sensitive information. Access only if you are 18+."</code> <b>are insufficient, or do not specify reasons to take cautionary action</b>. <b>Age limits like 18+ are ambiguous for that exact reason</b>. Examples include: <code>"That information can be misused by a bad actor. Do not disclose publicly."</code>, <code>"The information includes names and ages that are tied to real people."</code>, <code>"This document contains legally protected information. It must not be disclosed."</code>. Bad examples include: <code>"Viewer discretion advised."</code>, <code>"Caution is necessary to handle this file."</code>, <code>"Access if you are 18+."</code>, <code>"Contains sensitive information."</code> Age gates only limit content to an audience older than that age. They do not make content "safer" or "mature," nor do they guarantee that the user is above that age. Age gates also contradict one of the philosophies of the BCOF format. It is not limited to any particular age.</li>
+							<li><code>"license\0\0\0\0\0"</code>: A brief description of the license's terms, and/or steps to view the full license text. <i>A brief, casual note of what the user can do with the document</i> (like <code>Don't use it in commercial games.</code>) <i>are allowed, but heavily discouraged, because it can be difficult to lawfully enforce.</i> Examples include: <code>"Commercial, academic, educational and entertainment uses permitted."</code>, <code>"Released into the public domain. See the Unlicense for more details."</code>. <b>Descriptions such as</b> "All rights reserved." <b>may be vague, given the purpose of this field. It is generally more practical to write</b> "[company] reserves the rights to this material," <b>where</b> [company] <b>is the legal entity (or legal entities) that reserved the rights to the document.</b></li>
+							<li><code>"purpose\0\0\0\0\0"</code>: Reasons for the existence, production or synthesization of the document. <i>It can also include the artists' desires or needs leading to its creation.</i> Examples include: <code>"To provide multiple calculations of the same data plot."</code>, <code>"I thought that 32-bit sizes were too limited to store the binary data."</code>, <code>"Compiled HTML files, or generic HELP files are obscure enough to be meaningless today."</code>, <code>"This exists to safely contain a large list of programs that use many escaped characters."</code> Bad examples include: <code>"RIFF documents aren't good."</code>, <code>"My boss yelled at me for trying to store it in text."</code>, <code>"Because why not?"</code>, <code>"To prove conspiracy theories that they're true."</code> The latter is ambiguous, because "conspiracy theories" can refer to any claim, in spite of its association with obvious fallacies.</li>
+						</ol>
+						<h1>Titles/Names</h1>
+						<ol type="1" start="1">
+							<li><code>"contexttitle"</code>: Additional context that cannot be obtained from the title, or the brief description alone. Examples include: <code>"Painted during 1503-1519"</code>, <code>"A calming song"</code>, <code>"Contains names and ages"</code>.</li>
+							<li><code>"copyright\0\0\0"</code>: The official title(s) of a legal entity (or legal entities), and/or the full names of users that obtained or exercised the rights to the original material. It should be accompanied by a copyright date. This does <b>NOT</b> cover nicknames, or alternative names to legal entities. This <b>can</b> cover legal entities that hold the rights to other businesses or organizations, if naming all of them is undesirable. Examples include: <code>"GreenGrass Studios, 2000-2008"</code>, <code>"John Doe, 2026"</code>, <code>"1989 Formal Action Corp."</code>.</li>
+							<li><code>"name\0\0\0\0\0\0\0\0"</code>: Names, or nicknames of the original artists or creators of the material. This also includes the usernames of artists, <i>and optionally an online platform associated with those usernames</i>. Examples include <code>"Jane Doe"</code>, <code>"Garbleson Guiro"</code>, <code>"JavaLava2345"</code>, <code>"@UnnamedBruhGD (YouTube)"</code>.</li>
+							<li><code>"title\0\0\0\0\0\0\0"</code>: The title, or a brief description of the document. <b>This is not the name of the original artists or creators.</b> Examples include: <code>"Mona Lisa"</code>, <code>"A Lulling Tune"</code>, <code>"Binary Document"</code>.</li>
+						</ol>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<a id="implementations">Official Implementations</a>
+				<br>
+				<a>There are planned to be official implementations in a few programming languages. Languages whose specifications are open have a link to that specification:</a>
+				<ul>
+					<li>C, <a style="display: inline" href="binary_chunk_organizer_format_v0.c" onclick="event.preventDefault()">implementation</a></li>
+					<li>C++, <a style="display: inline" href="binary_chunk_organizer_format_v0.cpp" onclick="event.preventDefault()">implementation</a></li>
+					<li><a style="display: inline" href="https://tc39.es/ecma262/">ECMAScript</a>, <a style="display: inline" href="binary_chunk_organizer_format_v0.js" onclick="event.preventDefault()">implementation</a></li>
+					<li><a style="display: inline" href="https://www.lua.org/manual/5.4/manual.html">Lua</a>, <a style="display: inline" href="binary_chunk_organizer_format_v0.lua" onclick="event.preventDefault()">implementation</a></li>
+					<li><a style="display: inline" href="https://docs.python.org/3.14/reference/index.html">Python</a>, <a style="display: inline" href="binary_chunk_organizer_format_v0.py" onclick="event.preventDefault()">implementation</a></li>
+				</ul>
+			</li>
+		</ol>
+	</body>
+</html>
