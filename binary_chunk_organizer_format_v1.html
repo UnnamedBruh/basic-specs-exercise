@@ -106,15 +106,37 @@ Total Size: 40 bytes (multiple of 8)</pre>
 						<a>Below is a list of chunks that are reserved by this specification, where a string literal represents its <code>chunkHdr</code>:</a>
 						<ol type="1" start="1">
 							<li><code>"metadata"</code><br><br>
-							<a>This chunk represents the metadata for the Binary Chunk Organizer Format file. Its <code>binaryData</code> is a list of <b>metadata chunks</b>, which is structured as those metadata chunks.</a></li>
+							<a>This chunk represents the metadata for the Binary Chunk Organizer Format file. Its <code>binaryData</code> is a list of <b>metadata chunk fields</b>, which is structured as those metadata chunks. This chunk cannot appear more than once.</a></li>
 						</ol>
 					</li>
 					<li>
-						<a>Each metadata chunk is structured as:</a><br><br>
+						<a>Each metadata chunk field is structured as:</a><br><br>
 						<ul>
 							<li><code>name</code>: A 12-byte, endian-neutral byte-level string.</li>
 							<li><code>size</code>: An 8-byte integer representing the number of bytes of <code>value</code>. It does not include the padding.</li>
-							<li><code>id</code>: An 8-byte integer whose value represents an identifier for this metadata chunk. If a metadata chunk has the same <code>name</code> as another, its <code>id</code> must be unique.</li>
+							<li><code>id</code>: An 8-byte integer whose value represents an identifier for this metadata chunk. If a metadata chunk field has the same <code>name</code> as another, its <code>id</code> must be unique. Otherwise, the <code>id</code> can be the same as the <code>id</code> of another field. For an example:<br>
+							<ul>
+								<li>
+									<a>In a metadata chunk that has:</a>
+									<br>
+									<ul>
+										<li><code>"name"</code> as one field, and</li>
+										<li><code>"name"</code> as another</li>
+									</ul>
+									<br>
+									<a>Those fields' <code>id</code>s must be unique, because they describe fields that have the same <code>name</code>.</a>
+								</li>
+								<li>
+									<a>And in a metadata chunk that has:</a>
+									<br>
+									<ul>
+										<li><code>"name"</code> as one field, and</li>
+										<li><code>"description"</code> as another</li>
+									</ul>
+									<br>
+									<a>Those fields' <code>id</code>s don't have to be unique, because they describe two different fields.</a>
+								</li>
+							</ul></li>
 							<li><code>value</code>: An arbitrary-length, endian-neutral string that is encoded in extended ASCII (ISO-8859-1). This field is padded to an 8-byte block using null bytes. The padding is at the end of the string. <b>It must not be empty.</b></li>
 						</ul><br><br>
 						<a>This is the list of allowed metadata chunks, where a string literal represents its <code>name</code>, and "document" refers to a BCOF file:</a>
@@ -145,11 +167,11 @@ Total Size: 40 bytes (multiple of 8)</pre>
 				<br>
 				<a>There are planned to be official implementations in a few programming languages. Languages whose specifications are open have a link to that specification:</a>
 				<ul>
-					<li>C, <a style="display: inline" href="binary_chunk_organizer_format_v0.c" onclick="event.preventDefault()">implementation</a></li>
-					<li>C++, <a style="display: inline" href="binary_chunk_organizer_format_v0.cpp" onclick="event.preventDefault()">implementation</a></li>
-					<li><a style="display: inline" href="https://tc39.es/ecma262/">ECMAScript</a>, <a style="display: inline" href="binary_chunk_organizer_format_v0.js" onclick="event.preventDefault()">implementation</a></li>
-					<li><a style="display: inline" href="https://www.lua.org/manual/5.4/manual.html">Lua</a>, <a style="display: inline" href="binary_chunk_organizer_format_v0.lua" onclick="event.preventDefault()">implementation</a></li>
-					<li><a style="display: inline" href="https://docs.python.org/3.14/reference/index.html">Python</a>, <a style="display: inline" href="binary_chunk_organizer_format_v0.py" onclick="event.preventDefault()">implementation</a></li>
+					<li>C, <a style="display: inline" href="binary_chunk_organizer_format_v1.c" onclick="event.preventDefault()">implementation</a></li>
+					<li>C++, <a style="display: inline" href="binary_chunk_organizer_format_v1.cpp" onclick="event.preventDefault()">implementation</a></li>
+					<li><a style="display: inline" href="https://tc39.es/ecma262/">ECMAScript</a>, <a style="display: inline" href="binary_chunk_organizer_format_v1.js" onclick="event.preventDefault()">implementation</a></li>
+					<li><a style="display: inline" href="https://www.lua.org/manual/5.4/manual.html">Lua</a>, <a style="display: inline" href="binary_chunk_organizer_format_v1.lua" onclick="event.preventDefault()">implementation</a></li>
+					<li><a style="display: inline" href="https://docs.python.org/3.14/reference/index.html">Python</a>, <a style="display: inline" href="binary_chunk_organizer_format_v1.py" onclick="event.preventDefault()">implementation</a></li>
 				</ul>
 			</li>
 		</ol>
