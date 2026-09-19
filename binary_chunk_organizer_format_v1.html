@@ -30,7 +30,7 @@
 					<li><a>"Integer" means a block of memory that must be interpreted as a little-endian unsigned integer.</a></li>
 					<li><a>"Fail gracefully" means to stop parsing the BCOF format, or throw an error. The exact behavior is up to the implementation.</a></li>
 					<li><a>A backslash followed by a three-digit number is an octal escape. <code>\0</code> is an octal escape representing 0. <code>\1</code> is an octal escape representing 1. etc.</a></li>
-					<li><a>A "byte-level string" is encoded strictly in extended ASCII (ISO-8859-1), where each character is a fixed 8 bits. Strings that were originally in another encoding must be re-encoded into extended ASCII (ISO-8859-1); this rule applies when overwriting a field. If characters cannot be represented in ISO-8859-1, they should be replaced with question marks (?). If its size is below 8 bytes, it must be padded with null bytes. If it exceeds 9 bytes, it must be truncated to the first 8 bytes. Its final length is calculated by finding the last null byte.</a></li>
+					<li><a>A "byte-level string" is encoded strictly in extended ASCII (ISO-8859-1), where each character is a fixed 8 bits. Strings that were originally in another encoding must be re-encoded into extended ASCII (ISO-8859-1); this rule applies when overwriting a field. If characters cannot be represented in ISO-8859-1, they should be replaced with question marks (?). Its final length is calculated by finding the last null byte.</a></li>
 				</ol>
 			</li>
 			<li>
@@ -55,7 +55,7 @@
 						<a>In this example, a block of data is represented using hexadecimal bytes.</a>
 						<pre>42 43 4F 46 00 00 00 00 &lt;- Header
 48 00 00 00 00 00 00 00 &lt;- Filesize (value is 72)
-00 00 &lt;- Version (value is 0)
+01 00 &lt;- Version (value is 1)
 00 00 00 00 00 00 &lt;- Reserved (initialized to 0)
 00 00 00 00 00 00 00 00 &lt;- Reserved2 (initialized to 0)
 
@@ -64,7 +64,7 @@ Total Size: 32 bytes (multiple of 8)</pre>
 						<a>Notes:</a>
 						<ul>
 							<li>If the implementation does not recognize the version of the BCOF format, it should fail gracefully.</li>
-							<li>If any byte in the <code>reserved</code> and <code>reserved2</code> fields are not null, and the version is 0, the implementation must fail gracefully.</li>
+							<li>If any byte in the <code>reserved</code> and <code>reserved2</code> fields are not null, and the version is 1, the implementation must fail gracefully.</li>
 						</ul>
 					</li>
 					<li>
@@ -75,7 +75,7 @@ Total Size: 32 bytes (multiple of 8)</pre>
 						<br>
 						<a>A chunk is structured as:</a>
 						<ol type="1" start="1">
-							<li><code>chunkHdr</code>: An 8-byte, endian-neutral byte-level string whose value is arbitrary. Examples include: <code>"example\0"</code>. <code>"name\0\0\0\0"</code>. <code>"settings"</code>. <code>"erroneou"</code> (originally <code>"erroneously"</code>). Each <code>\0</code> indicates a null byte.<br><br>Edge case examples include:<br><ul>
+							<li><code>chunkHdr</code>: An 8-byte, endian-neutral byte-level string whose value is arbitrary. If its size is below 8 bytes, it must be padded with null bytes. If it exceeds 8 bytes, it must be truncated to the first 8 bytes. Examples include: <code>"example\0"</code>. <code>"name\0\0\0\0"</code>. <code>"settings"</code>. <code>"erroneou"</code> (originally <code>"erroneously"</code>). Each <code>\0</code> indicates a null byte.<br><br>Edge case examples include:<br><ul>
 								<li><code>"one\0two\0"</code>: The first null byte must be treated as part of the string. The second must be treated as padding.</li>
 								<li><code>"\0\0\0\0\0\0\0\0"</code>: The field is an empty string value. Each null byte is padding.</li>
 								<li><code>"pear\1\1\1\1"</code>: A <code>\1</code> indicates a byte with the value of 1. Each 1-value byte must be treated as part of the string.</li>
@@ -113,7 +113,7 @@ Total Size: 40 bytes (multiple of 8)</pre>
 						<a>Each metadata chunk is structured as:</a><br><br>
 						<ul>
 							<li><code>name</code>: A 12-byte, endian-neutral byte-level string.</li>
-							<li><code>size</code>: An 8-byte integer representing the number of bytes of <code>value</code>.</li>
+							<li><code>size</code>: An 8-byte integer representing the number of bytes of <code>value</code>. It does not include the padding.</li>
 							<li><code>id</code>: An 8-byte integer whose value represents an identifier for this metadata chunk. If a metadata chunk has the same <code>name</code> as another, its <code>id</code> must be unique.</li>
 							<li><code>value</code>: An arbitrary-length, endian-neutral string that is encoded in extended ASCII (ISO-8859-1). This field is padded to an 8-byte block using null bytes. The padding is at the end of the string. <b>It must not be empty.</b></li>
 						</ul><br><br>
